@@ -28,5 +28,21 @@ services:
       timeout: 5s
       retries: 5
 
+  incident-service:
+    build:
+      context: ./incident-service
+    container_name: opsboard-incident-service
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-incidentdb}
+      MYSQL_USER: ${MYSQL_USER:-opsboard}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-opsboard_pw}
+    ports:
+      - "127.0.0.1:8081:8081"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
 volumes:
   mysql_data:
