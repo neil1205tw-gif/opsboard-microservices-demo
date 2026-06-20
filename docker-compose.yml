@@ -60,5 +60,18 @@ services:
       incident-service:
         condition: service_started
 
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: opsboard-gateway
+    environment:
+      INCIDENT_SERVICE_BASE_URL: http://incident-service:8081
+      OPS_SERVICE_BASE_URL: http://ops-service:8082
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      - incident-service
+      - ops-service
+
 volumes:
   mysql_data:

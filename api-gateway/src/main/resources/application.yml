@@ -1,0 +1,25 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      routes:
+        - id: incident-service
+          uri: ${INCIDENT_SERVICE_BASE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/incidents/**
+          filters:
+            - StripPrefix=1
+        - id: ops-service
+          uri: ${OPS_SERVICE_BASE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/ops/**
+          filters:
+            - StripPrefix=2
+
+app:
+  cors:
+    allowed-origin: ${FRONTEND_ORIGIN:http://localhost:5173}
