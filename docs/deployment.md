@@ -74,7 +74,21 @@ docker compose up -d --build
 | 5173 | frontend-dashboard | 視需求開放（demo 用可以先限制成特定 IP，正式對外展示再開 `0.0.0.0/0`） |
 | 8080 | api-gateway | 同上 |
 
-3306（MySQL）、6379（Redis）、8081（incident-service）、8082（ops-service）**不需要、也不應該**對外開放——`docker-compose.yml` 裡這些 port 目前綁定在 `127.0.0.1`，即使 EC2 的安全群組開了對應 port，外部仍連不進去；唯一要注意的是如果之後要改成跨主機部署或拿掉 `127.0.0.1` 綁定，記得對應收緊安全群組規則。
+3306（MySQL）、6379（Redis）、8081（incident-service）、8082（ops-service）**不需要、也不應該**對外開放——`docker-compose.yml` 裡這些 port 目前綁定在 `127.0.0.1`，即使 EC2 的安全群組開了對應 port，外部仍連不進去，維持現狀即可，不需要改動。
+
+**但要注意：repo 裡現有的 `docker-compose.yml` 把 `frontend-dashboard`（5173）跟 `api-gateway`（8080）這兩個服務也綁定在 `127.0.0.1`**（`127.0.0.1:5173:80`、`127.0.0.1:8080:8080`），這是給本機開發用的設定。如果照上面這張表在安全群組開了 5173/8080，但沒有同時調整這兩個服務的 port mapping，**安全群組規則不會生效、外部仍然連不進去**，因為 `127.0.0.1` 只綁定 loopback 介面，安全群組管的是網卡對外流量，兩者是不同層次的限制。要讓方案 A 真的能用，部署前必須把 `docker-compose.yml` 裡這兩個服務的 port mapping 改成：
+
+```yaml
+  api-gateway:
+    ports:
+      - "8080:8080"      # 原為 "127.0.0.1:8080:8080"
+
+  frontend-dashboard:
+    ports:
+      - "5173:80"         # 原為 "127.0.0.1:5173:80"
+```
+
+去掉 `127.0.0.1:` 前綴後，容器才會監聽所有網路介面（`0.0.0.0`），外部流量才能透過 EC2 的安全群組規則打進來。改完要重新 `docker compose up -d`（或 `--build`）讓新的 port mapping 生效。**因為這樣會讓服務暴露到所有介面，請務必更謹慎地設定安全群組的來源範圍**——不要把 5173/8080 的來源開成 `0.0.0.0/0` 對全世界開放，建議限制成自己的 IP（`<your-ip>/32`）或公司 IP range，只有在確定要公開展示的當下才考慮放寬。
 
 這個方案的缺點：使用者要記兩個不同的 port（`:5173` 看畫面、API 走 `:8080`），且沒有 HTTPS，僅適合臨時、信任網路下的展示用途（例如面試現場用視訊分享畫面，或只給特定 IP 存取）。
 
@@ -101,7 +115,38 @@ docker compose up -d --build
    ```
 2. `.env` 檔不要 commit 進 git（repo 裡只保留 `.env.example` 作為範本，`.env` 應加進 `.gitignore`）。
 3. 更進一步的做法（本專案目前規模不需要，但部署到真正會接觸外部流量的環境時建議考慮）：改用 AWS Secrets Manager 或 SSM Parameter Store 存密碼，部署時用啟動腳本把密碼注入成環境變數，而不是把密碼明文放在 EC2 上的 `.env` 檔案裡。
-4. `frontend-dashboard/.env.example` 裡的 `VITE_API_BASE_URL=http://localhost:8080` 在正式環境也要改成實際對外的網域/IP（這個變數是 build time 參數，寫在 `frontend-dashboard/Dockerfile` 的 `ARG VITE_API_BASE_URL`，意味著**換網域要重新 build image**，不是單純改執行期環境變數就生效）。
+4. **前端對外 API URL：改 `frontend-dashboard/.env` 沒有用，必須改 `docker-compose.yml` 裡的 build arg。** `VITE_API_BASE_URL` 雖然在 `frontend-dashboard/.env.example` 裡有預設值，但實際生效的來源是 `docker-compose.yml` 裡 `frontend-dashboard.build.args.VITE_API_BASE_URL`（目前寫死成 `http://localhost:8080`），`frontend-dashboard/Dockerfile` 是用這個 build arg（`ARG VITE_API_BASE_URL`）在 build time 把值固化進編譯出來的 JS bundle，並不會在容器啟動時去讀 `.env` 檔案。換句話說，**只改 `frontend-dashboard/.env` 完全不會影響到實際跑起來的前端**。正確做法是：
+
+   ```yaml
+     frontend-dashboard:
+       build:
+         context: ./frontend-dashboard
+         args:
+           VITE_API_BASE_URL: http://<EC2 public IP>:8080   # 原為 http://localhost:8080
+   ```
+
+   把 `<EC2 public IP>` 換成 EC2 的 public IP 或網域名稱，改完之後要重新 build image 才會生效：
+
+   ```bash
+   docker compose build frontend-dashboard
+   docker compose up -d frontend-dashboard
+   # 或一次到位：
+   docker compose up -d --build
+   ```
+
+   如果之後 EC2 的 public IP 變了（例如重啟 instance、沒有用 Elastic IP），要記得回來改這個值並重新 build，否則前端會繼續打舊的位址。
+
+5. **CORS：`api-gateway` 預設只允許 `http://localhost:5173`，部署到 EC2 後要覆寫 `FRONTEND_ORIGIN`。** `api-gateway` 的 CORS 設定預設只允許來源 `http://localhost:5173`，`docker-compose.yml` 目前沒有覆寫這個環境變數。前端部署到 EC2 後，瀏覽器送出的 Origin 會是 EC2 的 public IP/網域（例如 `http://<EC2 public IP>:5173`），跟預設的 `http://localhost:5173` 不一致，瀏覽器直接打 gateway 的 8080 port 時會被 CORS 擋掉。要解決，需要在 `docker-compose.yml` 的 `api-gateway` 服務加上對應的環境變數：
+
+   ```yaml
+     api-gateway:
+       environment:
+         INCIDENT_SERVICE_BASE_URL: http://incident-service:8081
+         OPS_SERVICE_BASE_URL: http://ops-service:8082
+         FRONTEND_ORIGIN: http://<EC2 public IP>:5173   # 新增，需與步驟 4 的 EC2 位址一致
+   ```
+
+   這個值要跟步驟 4 設定的前端對外位址（同一個 IP/網域、同一個 port 5173）保持一致，否則前端雖然能打到 gateway，瀏覽器仍會因 CORS 不符而擋下回應。改完後重新 `docker compose up -d`（`api-gateway` 不需要重新 build，因為這是執行期環境變數，不是 build arg）。
 
 ## 尚未做、本文件範圍之外的事項
 
