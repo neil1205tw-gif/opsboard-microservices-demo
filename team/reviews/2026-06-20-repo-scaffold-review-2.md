@@ -1,0 +1,1 @@
+The change narrows MySQL and Redis published ports to the loopback interface using valid Docker Compose port syntax. This matches the stated security intent and does not introduce an evident functional regression in the current scaffold.
