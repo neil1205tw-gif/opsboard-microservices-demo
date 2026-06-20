@@ -2,11 +2,16 @@ package com.opsboard.incident.config;
 
 import com.opsboard.incident.entity.Runbook;
 import com.opsboard.incident.repository.RunbookRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RunbookSeeder implements CommandLineRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(RunbookSeeder.class);
 
     private final RunbookRepository runbookRepository;
 
@@ -64,6 +69,10 @@ public class RunbookSeeder implements CommandLineRunner {
         runbook.setServiceName(serviceName);
         runbook.setTitle(title);
         runbook.setContent(content.strip());
-        runbookRepository.save(runbook);
+        try {
+            runbookRepository.save(runbook);
+        } catch (DataIntegrityViolationException e) {
+            log.info("Skipping runbook seed for service '{}': already inserted by another instance", serviceName);
+        }
     }
 }

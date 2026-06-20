@@ -15,7 +15,7 @@ public class Runbook {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "service_name", nullable = false)
+    @Column(name = "service_name", nullable = false, unique = true)
     private String serviceName;
 
     @Column(nullable = false)
