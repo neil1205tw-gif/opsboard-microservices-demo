@@ -1,0 +1,1 @@
+The commit only changes the status update path from save() to saveAndFlush(), which is supported by JpaRepository and appropriately forces the JPA lifecycle callback before mapping the response. I did not find an introduced regression that warrants a review finding.
