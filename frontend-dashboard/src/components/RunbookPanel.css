@@ -1,0 +1,32 @@
+.runbook-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.runbook-panel__item {
+  background-color: #ffffff;
+  border: 1px solid #e2e4e9;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.runbook-panel__item h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.runbook-panel__content {
+  margin: 0;
+  font-family: inherit;
+  font-size: 13px;
+  color: #1f2329;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.runbook-panel__empty {
+  color: #6b7280;
+  font-size: 14px;
+}

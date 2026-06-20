@@ -1,0 +1,26 @@
+.timeline-entry-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 8px;
+  border-bottom: 1px solid #e2e4e9;
+  font-size: 13px;
+}
+
+.timeline-entry-row:last-child {
+  border-bottom: none;
+}
+
+.timeline-entry-row__from {
+  color: #4a4f57;
+}
+
+.timeline-entry-row__arrow {
+  color: #9aa0a8;
+}
+
+.timeline-entry-row__date {
+  color: #6b7280;
+  text-align: right;
+}

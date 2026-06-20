@@ -1,0 +1,113 @@
+.incident-detail-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.incident-detail-page__back {
+  font-size: 14px;
+  align-self: flex-start;
+}
+
+.incident-detail-page__summary {
+  background-color: #ffffff;
+  border: 1px solid #e2e4e9;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.incident-detail-page__summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.incident-detail-page__summary-header h1 {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.incident-detail-page__description {
+  font-size: 14px;
+  color: #4a4f57;
+}
+
+.incident-detail-page__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin: 0;
+}
+
+.incident-detail-page__meta div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.incident-detail-page__meta dt {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.incident-detail-page__meta dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.incident-detail-page__status-control {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.incident-detail-page__status-control button {
+  align-self: flex-start;
+  padding: 8px 16px;
+  border: 1px solid #1a56db;
+  border-radius: 4px;
+  background-color: #e3edfd;
+  color: #1a56db;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.incident-detail-page__status-control button:hover {
+  background-color: #d3e1fb;
+}
+
+.incident-detail-page__resolved-note {
+  font-size: 14px;
+  color: #1e7e34;
+  font-weight: 600;
+}
+
+.incident-detail-page__status-error {
+  font-size: 13px;
+  color: #c0392b;
+}
+
+.incident-detail-page__timeline h2,
+.incident-detail-page__runbooks h2 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.incident-detail-page__timeline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  border: 1px solid #e2e4e9;
+  border-radius: 8px;
+  overflow: hidden;
+}

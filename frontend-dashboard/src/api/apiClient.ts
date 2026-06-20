@@ -34,6 +34,26 @@ export type TriggerAlertResult =
   | { status: "created"; incident: Incident }
   | { status: "cooldown"; retryAfterSeconds: number };
 
+export interface TimelineEntry {
+  id: number;
+  incidentId: number;
+  fromStatus: IncidentStatus | null;
+  toStatus: IncidentStatus;
+  note: string;
+  createdAt: string;
+}
+
+export interface Runbook {
+  id: number;
+  serviceName: string;
+  title: string;
+  content: string;
+}
+
+export type UpdateStatusResult =
+  | { status: "updated"; incident: Incident }
+  | { status: "conflict"; message: string };
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${path}`, init);
   if (!response.ok) {
@@ -70,4 +90,39 @@ export async function triggerAlert(serviceName: string): Promise<TriggerAlertRes
 
 export function getIncidents(): Promise<Incident[]> {
   return request<Incident[]>("/api/incidents");
+}
+
+export function getIncidentById(id: string | number): Promise<Incident> {
+  return request<Incident>(`/api/incidents/${id}`);
+}
+
+export function getIncidentTimeline(id: string | number): Promise<TimelineEntry[]> {
+  return request<TimelineEntry[]>(`/api/incidents/${id}/timeline`);
+}
+
+export function getRunbooks(serviceName: string): Promise<Runbook[]> {
+  return request<Runbook[]>(`/api/runbooks?serviceName=${encodeURIComponent(serviceName)}`);
+}
+
+export async function updateIncidentStatus(
+  id: string | number,
+  status: string
+): Promise<UpdateStatusResult> {
+  const response = await fetch(`${API_BASE_URL}/api/incidents/${id}/status`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+
+  if (response.ok) {
+    const incident = (await response.json()) as Incident;
+    return { status: "updated", incident };
+  }
+
+  if (response.status === 409) {
+    const body = (await response.json()) as { message?: string };
+    return { status: "conflict", message: body.message ?? "Invalid status transition" };
+  }
+
+  throw new Error(`Unexpected response updating status for incident ${id}: ${response.status}`);
 }
