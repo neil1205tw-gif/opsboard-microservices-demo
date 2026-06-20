@@ -65,7 +65,7 @@ public class IncidentService {
             throw new InvalidStatusTransitionException(currentStatus, requestedStatus);
         }
         incident.setStatus(requestedStatus);
-        Incident saved = incidentRepository.save(incident);
+        Incident saved = incidentRepository.saveAndFlush(incident);
         return IncidentResponse.from(saved);
     }
 
