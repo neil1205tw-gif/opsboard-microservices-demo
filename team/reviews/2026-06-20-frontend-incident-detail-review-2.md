@@ -1,0 +1,1 @@
+The change adds a synchronous ref guard and disabled state around the status update flow, which addresses the duplicate stale request scenario without introducing a clear regression in the modified code.
