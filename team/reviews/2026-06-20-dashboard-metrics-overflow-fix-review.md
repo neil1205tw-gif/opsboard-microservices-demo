@@ -1,0 +1,1 @@
+The change formats numeric metric values to bounded display lengths and adds defensive CSS without introducing an evident functional regression in the typed data flow.
