@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend-dashboard",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "echo already running via docker compose"],
+      "port": 5173
+    }
+  ]
+}
