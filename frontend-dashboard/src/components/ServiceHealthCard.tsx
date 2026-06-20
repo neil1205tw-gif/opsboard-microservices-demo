@@ -22,15 +22,15 @@ export default function ServiceHealthCard({ health, metrics, onAlertCreated }: S
       <dl className="service-health-card__metrics">
         <div>
           <dt>Latency</dt>
-          <dd>{metrics ? `${metrics.latencyMs} ms` : "-"}</dd>
+          <dd>{metrics ? `${Math.round(metrics.latencyMs)} ms` : "-"}</dd>
         </div>
         <div>
           <dt>Error Rate</dt>
-          <dd>{metrics ? `${metrics.errorRatePercent}%` : "-"}</dd>
+          <dd>{metrics ? `${metrics.errorRatePercent.toFixed(1)}%` : "-"}</dd>
         </div>
         <div>
           <dt>CPU</dt>
-          <dd>{metrics ? `${metrics.cpuPercent}%` : "-"}</dd>
+          <dd>{metrics ? `${metrics.cpuPercent.toFixed(1)}%` : "-"}</dd>
         </div>
       </dl>
 
