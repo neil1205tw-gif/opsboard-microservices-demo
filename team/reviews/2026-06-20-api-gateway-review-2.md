@@ -1,0 +1,1 @@
+The added gateway route correctly forwards /api/runbooks requests to incident-service with the same prefix stripping needed to reach /runbooks. I did not identify any introduced correctness issues.
