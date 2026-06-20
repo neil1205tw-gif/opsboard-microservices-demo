@@ -1,1 +1,24 @@
 .claude/settings.local.json
+
+# Java/Maven
+target/
+*.class
+target/*.jar
+
+# Node/前端
+node_modules/
+dist/
+.vite/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 環境變數
+.env
+!.env.example
