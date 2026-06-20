@@ -1,0 +1,72 @@
+.service-health-card {
+  flex: 1;
+  min-width: 220px;
+  background-color: #ffffff;
+  border: 1px solid #e2e4e9;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.service-health-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.service-health-card__header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.service-health-card__metrics {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+}
+
+.service-health-card__metrics div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.service-health-card__metrics dt {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.service-health-card__metrics dd {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.trigger-alert {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.trigger-alert button {
+  align-self: flex-start;
+  padding: 6px 14px;
+  border: 1px solid #c0392b;
+  border-radius: 4px;
+  background-color: #fde2e1;
+  color: #c0392b;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.trigger-alert button:hover {
+  background-color: #fbd0ce;
+}
+
+.trigger-alert__message {
+  font-size: 13px;
+  color: #4a4f57;
+}

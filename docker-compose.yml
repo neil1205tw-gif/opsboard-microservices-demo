@@ -73,5 +73,16 @@ services:
       - incident-service
       - ops-service
 
+  frontend-dashboard:
+    build:
+      context: ./frontend-dashboard
+      args:
+        VITE_API_BASE_URL: http://localhost:8080
+    container_name: opsboard-frontend
+    ports:
+      - "127.0.0.1:5173:80"
+    depends_on:
+      - api-gateway
+
 volumes:
   mysql_data:
