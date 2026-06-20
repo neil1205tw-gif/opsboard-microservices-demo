@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   getIncidentById,
@@ -28,6 +28,8 @@ export default function IncidentDetailPage() {
   const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
   const [runbooks, setRunbooks] = useState<Runbook[]>([]);
   const [statusError, setStatusError] = useState<string | null>(null);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const isUpdatingStatusRef = useRef(false);
 
   useEffect(() => {
     async function loadIncidentAndTimeline() {
@@ -47,22 +49,30 @@ export default function IncidentDetailPage() {
   }, [id]);
 
   async function handleAdvanceStatus() {
+    if (isUpdatingStatusRef.current) return;
     if (!id || !incident) return;
     const nextStatus = NEXT_STATUS[incident.status];
     if (!nextStatus) return;
 
+    isUpdatingStatusRef.current = true;
+    setIsUpdatingStatus(true);
     setStatusError(null);
-    const result = await updateIncidentStatus(id, nextStatus);
+    try {
+      const result = await updateIncidentStatus(id, nextStatus);
 
-    if (result.status === "updated") {
-      const [incidentData, timelineData] = await Promise.all([
-        getIncidentById(id),
-        getIncidentTimeline(id),
-      ]);
-      setIncident(incidentData);
-      setTimeline(timelineData);
-    } else {
-      setStatusError(result.message);
+      if (result.status === "updated") {
+        const [incidentData, timelineData] = await Promise.all([
+          getIncidentById(id),
+          getIncidentTimeline(id),
+        ]);
+        setIncident(incidentData);
+        setTimeline(timelineData);
+      } else {
+        setStatusError(result.message);
+      }
+    } finally {
+      isUpdatingStatusRef.current = false;
+      setIsUpdatingStatus(false);
     }
   }
 
@@ -112,7 +122,7 @@ export default function IncidentDetailPage() {
 
       <section className="incident-detail-page__status-control">
         {nextStatus ? (
-          <button type="button" onClick={handleAdvanceStatus}>
+          <button type="button" onClick={handleAdvanceStatus} disabled={isUpdatingStatus}>
             Mark as {nextStatus}
           </button>
         ) : (
