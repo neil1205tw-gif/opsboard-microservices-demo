@@ -57,6 +57,6 @@ docker compose up -d --build
 
 - [`docs/architecture.md`](docs/architecture.md) — 服務職責、架構圖、資料流說明、技術選型理由
 - [`docs/runbook.md`](docs/runbook.md) — OpsBoard 系統本身的維運手冊（常見問題排查）
-- [`docs/deployment.md`](docs/deployment.md) — AWS EC2 部署就緒文件（尚未實際部署）
-- [`docs/demo-script.md`](docs/demo-script.md) — 逐步 demo 腳本，面試前練習用
+- [`docs/deployment.md`](docs/deployment.md) — AWS EC2 部署就緒文件
+- [`docs/demo-script.md`](docs/demo-script.md) — 逐步 demo 腳本
 - [`docs/api-overview.md`](docs/api-overview.md) — 透過 gateway 呼叫的完整 API 列表
