@@ -2,11 +2,14 @@ package com.opsboard.incident.service;
 
 import com.opsboard.incident.dto.CreateIncidentRequest;
 import com.opsboard.incident.dto.IncidentResponse;
+import com.opsboard.incident.dto.TimelineEntryResponse;
 import com.opsboard.incident.entity.Incident;
 import com.opsboard.incident.entity.IncidentStatus;
+import com.opsboard.incident.entity.IncidentTimelineEntry;
 import com.opsboard.incident.exception.IncidentNotFoundException;
 import com.opsboard.incident.exception.InvalidStatusTransitionException;
 import com.opsboard.incident.repository.IncidentRepository;
+import com.opsboard.incident.repository.IncidentTimelineEntryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,9 +29,12 @@ public class IncidentService {
     }
 
     private final IncidentRepository incidentRepository;
+    private final IncidentTimelineEntryRepository timelineEntryRepository;
 
-    public IncidentService(IncidentRepository incidentRepository) {
+    public IncidentService(IncidentRepository incidentRepository,
+                            IncidentTimelineEntryRepository timelineEntryRepository) {
         this.incidentRepository = incidentRepository;
+        this.timelineEntryRepository = timelineEntryRepository;
     }
 
     @Transactional
@@ -40,6 +46,14 @@ public class IncidentService {
         incident.setSeverity(request.getSeverity());
         incident.setStatus(IncidentStatus.OPEN);
         Incident saved = incidentRepository.save(incident);
+
+        IncidentTimelineEntry timelineEntry = new IncidentTimelineEntry();
+        timelineEntry.setIncidentId(saved.getId());
+        timelineEntry.setFromStatus(null);
+        timelineEntry.setToStatus(IncidentStatus.OPEN);
+        timelineEntry.setNote("Incident created");
+        timelineEntryRepository.save(timelineEntry);
+
         return IncidentResponse.from(saved);
     }
 
@@ -66,7 +80,23 @@ public class IncidentService {
         }
         incident.setStatus(requestedStatus);
         Incident saved = incidentRepository.saveAndFlush(incident);
+
+        IncidentTimelineEntry timelineEntry = new IncidentTimelineEntry();
+        timelineEntry.setIncidentId(saved.getId());
+        timelineEntry.setFromStatus(currentStatus);
+        timelineEntry.setToStatus(requestedStatus);
+        timelineEntry.setNote("Status changed to " + requestedStatus);
+        timelineEntryRepository.save(timelineEntry);
+
         return IncidentResponse.from(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public List<TimelineEntryResponse> getTimeline(Long id) {
+        findIncidentOrThrow(id);
+        return timelineEntryRepository.findAllByIncidentIdOrderByCreatedAtAsc(id).stream()
+                .map(TimelineEntryResponse::from)
+                .toList();
     }
 
     private Incident findIncidentOrThrow(Long id) {

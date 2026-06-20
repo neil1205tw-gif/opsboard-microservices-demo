@@ -2,6 +2,7 @@ package com.opsboard.incident.controller;
 
 import com.opsboard.incident.dto.CreateIncidentRequest;
 import com.opsboard.incident.dto.IncidentResponse;
+import com.opsboard.incident.dto.TimelineEntryResponse;
 import com.opsboard.incident.dto.UpdateIncidentStatusRequest;
 import com.opsboard.incident.service.IncidentService;
 import jakarta.validation.Valid;
@@ -49,5 +50,10 @@ public class IncidentController {
             @Valid @RequestBody UpdateIncidentStatusRequest request) {
         IncidentResponse response = incidentService.updateStatus(id, request.getStatus());
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/timeline")
+    public ResponseEntity<List<TimelineEntryResponse>> getTimeline(@PathVariable Long id) {
+        return ResponseEntity.ok(incidentService.getTimeline(id));
     }
 }
