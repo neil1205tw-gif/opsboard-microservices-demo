@@ -8,7 +8,7 @@ services:
       MYSQL_USER: ${MYSQL_USER:-opsboard}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-opsboard_pw}
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -21,7 +21,7 @@ services:
     image: redis:7-alpine
     container_name: opsboard-redis
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
