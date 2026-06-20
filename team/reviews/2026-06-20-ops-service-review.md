@@ -1,0 +1,1 @@
+The new ops-service implementation matches the documented endpoints, Redis cooldown behavior, incident-service integration, and docker-compose wiring. I did not find a discrete introduced bug that would block correctness.
