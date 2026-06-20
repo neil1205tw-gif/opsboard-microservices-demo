@@ -1,0 +1,13 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: ops-service
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+incident-service:
+  base-url: ${INCIDENT_SERVICE_BASE_URL:http://localhost:8081}

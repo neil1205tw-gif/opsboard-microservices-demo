@@ -44,5 +44,21 @@ services:
       mysql:
         condition: service_healthy
 
+  ops-service:
+    build:
+      context: ./ops-service
+    container_name: opsboard-ops-service
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      INCIDENT_SERVICE_BASE_URL: http://incident-service:8081
+    ports:
+      - "127.0.0.1:8082:8082"
+    depends_on:
+      redis:
+        condition: service_healthy
+      incident-service:
+        condition: service_started
+
 volumes:
   mysql_data:
